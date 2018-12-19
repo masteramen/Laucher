@@ -1,4 +1,4 @@
-package laucher;
+package launcher;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,12 +19,11 @@ import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 public class SplashScreen extends JFrame {
   BorderLayout borderLayout1 = new BorderLayout();
   JLabel imageLabel = new JLabel();
-  JPanel southPanel = new JPanel();
-  FlowLayout southPanelFlowLayout = new FlowLayout();
   JProgressBar progressBar = new JProgressBar();
   ImageIcon imageIcon;
   JLabel title = null;							// 栏目名称
@@ -47,10 +46,9 @@ private int positionY;
   // note - this class created with JBuilder
   void jbInit() throws Exception {
   	setUndecorated(true);
-  	setTitle("程序正在加载中");
-	title = new JLabel("欢迎使用本系统");
+  	setTitle("Loading");
+	title = new JLabel("Loading");
 	this.setSize(260, 60);
-	head = new JLabel("");
 	close = new JLabel(" x");
 	
 	title.setPreferredSize(new Dimension(230, 26));
@@ -65,23 +63,18 @@ private int positionY;
 	close.setHorizontalTextPosition(JLabel.CENTER);
 	close.setCursor(new Cursor(12));
 	close.setToolTipText("关闭取消更新");
-
-	head.setPreferredSize(new Dimension(250, 35));
-	head.setVerticalTextPosition(JLabel.CENTER);
-	head.setHorizontalTextPosition(JLabel.CENTER);
-	head.setFont(new Font("宋体", Font.PLAIN, 12));
-	head.setForeground(Color.blue);
 	JPanel headPan = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+	headPan.setOpaque(false);
 	headPan.add(title);
 	headPan.add(close);
-	headPan.add(head);
 	
     imageLabel.setIcon(imageIcon);
     this.getContentPane().setLayout(borderLayout1);
-    southPanel.setLayout(southPanelFlowLayout);
-    this.getContentPane().add(southPanel, BorderLayout.SOUTH);
-    progressBar.setPreferredSize(new Dimension(250,20));
-    southPanel.add(progressBar, BorderLayout.CENTER);
+    progressBar.setBorderPainted(false);
+    getContentPane().add(progressBar, BorderLayout.CENTER);
+    progressBar.setForeground(Color.BLACK);
+    progressBar.setBorder(new EmptyBorder(0, 0, 0, 0));
+    progressBar.setPreferredSize(new Dimension(250, 25));
 
     this.getContentPane().add(headPan, BorderLayout.NORTH);
     handle();

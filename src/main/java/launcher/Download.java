@@ -1,7 +1,10 @@
-package laucher;
+package launcher;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -82,6 +85,36 @@ public static Update checkUpdate2( ) throws IOException {
  
 	return null;
 }
+private static String readInputStreamToString(HttpURLConnection connection) {
+    String result = null;
+    StringBuffer sb = new StringBuffer();
+    InputStream is = null;
+
+    try {
+        is = new BufferedInputStream(connection.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        String inputLine = "";
+        while ((inputLine = br.readLine()) != null) {
+            sb.append(inputLine).append("\n");
+        }
+        result = sb.toString();
+    }
+    catch (Exception e) {
+        result = null;
+    }
+    finally {
+        if (is != null) {
+            try { 
+                is.close(); 
+            } 
+            catch (IOException e) {
+               e.printStackTrace();
+            }
+        }   
+    }
+
+    return result;
+}
 public static Update checkUpdate( ) throws IOException {
 
 
@@ -91,7 +124,7 @@ public static Update checkUpdate( ) throws IOException {
 	}
 	
 	
-	String url = "http://www.jfox.info/update/"+JarTool.getJarModuleName()+"/"+JarTool.getJarModuleName()+".jar"+"?_t="+new Date().getTime();
+	String url = Config.checkUpdateUrl+"?_t="+new Date().getTime();
  
 	URL obj = new URL(url);
 	HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
@@ -100,23 +133,30 @@ public static Update checkUpdate( ) throws IOException {
 	conn.addRequestProperty("User-Agent", "Mozilla");
 	conn.addRequestProperty("Referer", "google.com");
 	conn.setInstanceFollowRedirects(false);
-
-	if (conn.getLastModified()>JarTool.getLatestJarModifiyDate()) {
+	
+	System.setProperty("java.net.useSystemProxies", "true");
+	String response = readInputStreamToString(conn);
+	String[] vesionInfo = response.trim().split("\n+");
+	if (vesionInfo!=null && vesionInfo[0].trim().compareTo(JarTool.getCurrentVersionString())>0) {
  
 		Update update = new Update();		
 		update.url = url.split("\\?")[0];
 		
-		if(new File(JarTool.getDownloadUpdateJarFileName(url)).exists()){
+		if(new File(JarTool.getDownloadUpdateJarFileName(vesionInfo[0])).exists()){
 			System.out.println("已经是最新的文件了");
-			File f=new File(JarTool.getDownloadUpdateJarFileName(url));
-			f.renameTo(new File(f.getParentFile().getAbsoluteFile()+"/"+f.getName().substring(0,f.getName().length()-4)+"-"+f.lastModified()+".jar"));
 		}
-		
-		String size = conn.getHeaderField("Content-Length");
+		HttpURLConnection conn2 = (HttpURLConnection) new URL(vesionInfo[1]).openConnection();
+		conn2.setReadTimeout(150000);
+		conn2.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
+		conn2.addRequestProperty("User-Agent", "Mozilla");
+		conn2.addRequestProperty("Referer", "google.com");
+		conn2.setInstanceFollowRedirects(true);
+		String size = conn2.getHeaderField("Content-Length");
 		if(size!=null)update.size = Long.parseLong(size);
-
-		update.in = conn.getInputStream();
-		update.lastModifyTime=conn.getLastModified();
+		
+		update.in = conn2.getInputStream();
+		update.lastModifyTime=conn2.getLastModified();
+		update.version = vesionInfo[0].trim();
 		return update;
 	}else
 		conn.disconnect();

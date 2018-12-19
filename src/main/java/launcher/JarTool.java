@@ -1,4 +1,4 @@
-package laucher;
+package launcher;
 
 import java.io.File;  
 import java.io.FileInputStream;
@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 /** 
  * 获取打包后jar的路径信息 
  * @author Administrator 
@@ -21,9 +23,7 @@ public class JarTool {
     }  
     //获取jar目录  
     public static String getJarDir() {  
-        File file = getFile();  
-        if(file==null)return null;  
-         return getFile().getParent();  
+    	return System.getProperty("user.home")+"/"+".launch";  
     }  
     //获取jar包名  
     public static String getJarName() {  
@@ -32,9 +32,7 @@ public class JarTool {
         return getFile().getName();  
     }  
     public static String getJarModuleName() {  
-        File file = getFile();  
-        if(file==null)return null;  
-        return file.getName().substring(0,file.getName().length()-4);  
+        return Config.appName; 
     }  
     private static File getFile() {  
         //关键是这行...  
@@ -87,7 +85,7 @@ public class JarTool {
 	}
 	public static File getUpdateDir()
 	{
-		return  new File(JarTool.getJarDir()+"/"+JarTool.getJarModuleName());
+		return  new File(JarTool.getJarDir()+"/"+Config.appName);
 
 	}
 	public static boolean makeSureUpdateSuccess() {
@@ -103,19 +101,18 @@ public class JarTool {
 		if(latestFile==null)return "";
 		return latestFile.getName().substring(getJarModuleName().length());
 	}
-	public static long getLatestJarModifiyDate() {
+	public static String getCurrentVersionString() {
 		// TODO Auto-generated method stub
 		File latestFile = getLatestJarFile();
-		if(latestFile==null)return 0;
-		return latestFile.lastModified();
+		if(latestFile==null)return "";
+		return new SimpleDateFormat("YYYYMMDD").format(new Date(latestFile.lastModified()));
 	}
-	public static String getDownloadUpdateJarTmpFileName(String url) {
-		// TODO Auto-generated method stub
-		return getUpdateDir().getAbsolutePath()+"/"+url.substring(url.lastIndexOf('/'))+".tmp";
+	public static String getDownloadUpdateJarTmpFileName(String version) {
+		return getUpdateDir().getAbsolutePath()+"/"+version+".tmp";
 	}  
-	public static String getDownloadUpdateJarFileName(String url) {
+	public static String getDownloadUpdateJarFileName(String versionId) {
 		// TODO Auto-generated method stub
-		return getUpdateDir().getAbsolutePath()+"/"+url.substring(url.lastIndexOf('/'));
+		return getUpdateDir().getAbsolutePath()+"/"+Config.appName+"-"+versionId+".jar";
 	}
 	public static void moveFile(File afile, File bfile) throws IOException {
 		// TODO Auto-generated method stub

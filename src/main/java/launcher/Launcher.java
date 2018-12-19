@@ -1,4 +1,4 @@
-package laucher;
+package launcher;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
@@ -17,12 +17,11 @@ import java.util.jar.Manifest;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import org.eclipse.jdt.internal.jarinjarloader.RsrcURLStreamHandlerFactory;
 
 
-public class Laucher {
+public class Launcher {
 	    private static Method addURL = initAddMethod();  
 	     static URLClassLoader system = (URLClassLoader) ClassLoader.getSystemClassLoader();  
 	     private static final Method initAddMethod() {  
@@ -53,20 +52,6 @@ public class Laucher {
 			String[] rsrcClassPath;
 		}
 
-	  
-	    private static final void loopFiles(File file, List<File> files) {  
-	        if (file.isDirectory()) {  
-	            File[] tmps = file.listFiles();  
-	            for (File tmp : tmps) {  
-	                loopFiles(tmp, files);  
-	            }  
-	        } else {  
-	            if (file.getAbsolutePath().endsWith(".jar") || file.getAbsolutePath().endsWith(".zip")) {  
-	                files.add(file);  
-	            }  
-	        }  
-	    }  
-	  
 	    public static final void loadJarFile(File file,String[] args) {  
 	    	 try {
 				addURL(system, new URL[]{file.toURI().toURL()});
@@ -77,17 +62,12 @@ public class Laucher {
 	    }  
 	  
 	    public static void main(final String[] args) {	
-	        try {
-	            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	          }
-	          catch (Exception e) {
-	            e.printStackTrace();
-	          }
+
 	    	final SplashScreen screen = new SplashScreen(null);
 	        screen.setLocationRelativeTo(null);
 	        screen.setProgressMax(100);
 	        screen.setScreenVisible(true);
-	        screen.setProgress("正在检查更新",0);
+	        screen.setProgress("Checking update...",0);
 	        new Thread()
 	        {
 	        		private int percent;
@@ -110,7 +90,9 @@ public class Laucher {
 
 	    	                    int size = 0;
 	    						 BufferedInputStream bis = new BufferedInputStream(update.in);
-	    		                 FileOutputStream fos = new FileOutputStream(JarTool.getDownloadUpdateJarTmpFileName(update.url));
+	    						 File tmpFile = new File(JarTool.getDownloadUpdateJarTmpFileName(update.version));
+	    						 tmpFile.getParentFile().mkdirs();
+	    		                 FileOutputStream fos = new FileOutputStream(tmpFile);
 	    		                 long rSize =0;
 	    		                 while ((size = bis.read(buffer)) != -1) {
 	    		                	    fos.write(buffer, 0, size);
@@ -121,7 +103,7 @@ public class Laucher {
 	    	                            SwingUtilities.invokeLater(new Runnable() {
 	    									public void run() {
 	    										// TODO Auto-generated method stub
-	    			                            screen.setProgress("已经下载"+percent+"%",percent);
+	    			                            screen.setProgress("Downloaded "+percent+"%",percent);
 	    									}
 	    								});
 	    		                 }
@@ -131,10 +113,10 @@ public class Laucher {
 	 	                            SwingUtilities.invokeLater(new Runnable() {
 	 	    									public void run() {
 	 	    										// TODO Auto-generated method stub
-	 	    			                            screen.setProgress("已经更新完成，正在启动程序.",percent);
+	 	    			                            screen.setProgress("Finish.",percent);
 	 	    									}
 	 	    								});
-	 	                           JarTool.moveFile(new File(JarTool.getDownloadUpdateJarTmpFileName(update.url)),new File(JarTool.getDownloadUpdateJarFileName(update.url)));
+	 	                           JarTool.moveFile(tmpFile,new File(JarTool.getDownloadUpdateJarFileName(update.version)));
 	 	                          new File(JarTool.getDownloadUpdateJarFileName(update.url)).setLastModified(update.lastModifyTime);
 	 	                           Thread.sleep(1000);
 								} catch (InterruptedException e1) {
@@ -145,8 +127,14 @@ public class Laucher {
 	    				} catch (IOException e) {
 	    					// TODO Auto-generated catch block
 	    					e.printStackTrace();
-	    					JOptionPane.showMessageDialog(null, "发生错误："+e.getMessage(), "发生错误",JOptionPane.ERROR_MESSAGE);
+	    					JOptionPane.showMessageDialog(null, "Error："+e.getMessage(), "Error",JOptionPane.ERROR_MESSAGE);
 	    				}
+	    				try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 	    				screen.dispose();
 	    				lauch(args);
 	    			}
@@ -177,14 +165,17 @@ public class Laucher {
 				ManifestInfo result = new ManifestInfo();
 				Attributes mainAttribs = manifest.getMainAttributes();
 				result.rsrcMainClass = mainAttribs.getValue(JIJConstants.REDIRECTED_MAIN_CLASS_MANIFEST_NAME); 
+				
+				if(result.rsrcMainClass==null)result.rsrcMainClass = mainAttribs.getValue(JIJConstants.MAIN_CLASS_MANIFEST_NAME); 
 				String rsrcCP = mainAttribs.getValue(JIJConstants.REDIRECTED_CLASS_PATH_MANIFEST_NAME); 
 				if (rsrcCP == null)
 					rsrcCP = JIJConstants.DEFAULT_REDIRECTED_CLASSPATH; 
 				result.rsrcClassPath = splitSpaces(rsrcCP);
+				
 				if ((result.rsrcMainClass != null) && !result.rsrcMainClass.trim().equals(""))
 				{
 					ManifestInfo mi = result;
-					URL[] rsrcUrls = new URL[mi.rsrcClassPath.length];
+					URL[] rsrcUrls = new URL[mi.rsrcClassPath.length+1];
 					for (int i = 0; i < mi.rsrcClassPath.length; i++) {
 						String rsrcPath = mi.rsrcClassPath[i];
 						if (rsrcPath.endsWith(JIJConstants.PATH_SEPARATOR)) 
@@ -192,6 +183,7 @@ public class Laucher {
 						else
 							rsrcUrls[i] = new URL(JIJConstants.JAR_INTERNAL_URL_PROTOCOL_WITH_COLON + rsrcPath + JIJConstants.JAR_INTERNAL_SEPARATOR);    
 					}
+					rsrcUrls[mi.rsrcClassPath.length] = file.toURI().toURL();
 					ClassLoader jceClassLoader = new URLClassLoader(rsrcUrls, null);
 					Thread.currentThread().setContextClassLoader(jceClassLoader);
 					Class c = Class.forName(mi.rsrcMainClass, true, jceClassLoader);
@@ -229,6 +221,7 @@ class JIJConstants {
 	
 	static final String REDIRECTED_CLASS_PATH_MANIFEST_NAME  = "Rsrc-Class-Path";  //$NON-NLS-1$
 	static final String REDIRECTED_MAIN_CLASS_MANIFEST_NAME  = "Rsrc-Main-Class";  //$NON-NLS-1$
+	static final String MAIN_CLASS_MANIFEST_NAME  = "Main-Class";  //$NON-NLS-1$
 	static final String DEFAULT_REDIRECTED_CLASSPATH         = "";  //$NON-NLS-1$
 	static final String MAIN_METHOD_NAME                     = "main";  //$NON-NLS-1$
 	static final String JAR_INTERNAL_URL_PROTOCOL_WITH_COLON = "jar:rsrc:";  //$NON-NLS-1$
