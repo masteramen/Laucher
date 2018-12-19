@@ -29,7 +29,7 @@ import java.util.jar.Manifest;
 
 import javax.swing.JOptionPane;
 
-import launcher.JarTool;
+import launch.JarTool;
 
 /**
  * This class will be compiled into the binary jar-in-jar-loader.zip. This ZIP is used for the

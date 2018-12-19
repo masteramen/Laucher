@@ -1,4 +1,4 @@
-package launcher;
+package launch;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -6,20 +6,48 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicProgressBarUI;
+class BarUI extends BasicProgressBarUI { 
+
+    private Rectangle r = new Rectangle(); 
+
+    @Override 
+    protected void paintIndeterminate(Graphics g, JComponent c) { 
+     Graphics2D G2D = (Graphics2D) g; 
+     G2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+               RenderingHints.VALUE_ANTIALIAS_ON); 
+     r = getBox(r); 
+     g.setColor(c.getForeground()); 
+     g.fillRect(r.x,r.y,r.width,r.height); 
+    } 
+   } 
+
 
 public class SplashScreen extends JFrame {
   BorderLayout borderLayout1 = new BorderLayout();
@@ -46,6 +74,9 @@ private int positionY;
   // note - this class created with JBuilder
   void jbInit() throws Exception {
   	setUndecorated(true);
+  	
+    JPanel wrapPanel = new JPanel(new BorderLayout());
+
   	setTitle("Loading");
 	title = new JLabel("Loading");
 	this.setSize(260, 60);
@@ -56,29 +87,64 @@ private int positionY;
 	title.setHorizontalTextPosition(JLabel.CENTER);
 	title.setFont(new Font("宋体", Font.PLAIN, 12));
 	title.setForeground(Color.black);
-
+	title.setOpaque(false);
 	close.setFont(new Font("Arial", Font.BOLD, 15));
 	close.setPreferredSize(new Dimension(20, 20));
 	close.setVerticalTextPosition(JLabel.CENTER);
 	close.setHorizontalTextPosition(JLabel.CENTER);
 	close.setCursor(new Cursor(12));
 	close.setToolTipText("关闭取消更新");
-	JPanel headPan = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+	JPanel headPan = new JPanel();
 	headPan.setOpaque(false);
-	headPan.add(title);
-	headPan.add(close);
+	headPan.setLayout(new BorderLayout(0, 0));
+	headPan.add(title, BorderLayout.CENTER);
+	headPan.add(close, BorderLayout.EAST);
 	
     imageLabel.setIcon(imageIcon);
     this.getContentPane().setLayout(borderLayout1);
     progressBar.setBorderPainted(false);
-    getContentPane().add(progressBar, BorderLayout.CENTER);
+   // progressBar.setBorderPainted(false);
+    //progressBar.setUI(new BarUI());
     progressBar.setForeground(Color.BLACK);
     progressBar.setBorder(new EmptyBorder(0, 0, 0, 0));
     progressBar.setPreferredSize(new Dimension(250, 25));
+    progressBar.setBackground(Color.RED);
+    progressBar.setOpaque(false);
+    wrapPanel.add(headPan, BorderLayout.NORTH);
+    wrapPanel.setOpaque(false);
+    URL url = new URL(Config.loadingImageSrc);
+    URLConnection connection = url.openConnection();
+    connection.setDoOutput(true);
+    BufferedImage image = ImageIO.read(connection.getInputStream());  
+    int srcWidth = image .getWidth();      // 源图宽度
+    int srcHeight = image .getHeight();    // 源图高度
 
-    this.getContentPane().add(headPan, BorderLayout.NORTH);
+    imageIcon = new ImageIcon(image.getScaledInstance(300,300,Image.SCALE_DEFAULT));
+    
+    JLayeredPane layeredPane_1 = new JLayeredPane();
+    setContentPane(layeredPane_1);
+    
+   // getContentPane().add(layeredPane_1, BorderLayout.CENTER);
+    
+    JLabel label = new JLabel("");
+    label.setBounds(0, 0, 300, 300);
+    //layeredPane_1.add(label,-1);
+    wrapPanel.setBounds(0, 0, 300, 300);
+    layeredPane_1.add(wrapPanel,1,1);
+    
+    JPanel panel = new JPanel();
+    panel.setOpaque(false);
+    wrapPanel.add(panel, BorderLayout.CENTER);
+    panel.setLayout(new BorderLayout(0, 0));
+    layeredPane_1.add(label,0,1);
+    label.setPreferredSize(new Dimension(200, 150));
+    label.setIcon(imageIcon);
     handle();
-   // this.pack();
+    panel.add(progressBar, BorderLayout.SOUTH);
+
+    setSize(300, 300);
+
+    //this.pack();
     
     
   }

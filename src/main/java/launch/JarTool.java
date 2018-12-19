@@ -1,4 +1,4 @@
-package launcher;
+package launch;
 
 import java.io.File;  
 import java.io.FileInputStream;

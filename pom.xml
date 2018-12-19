@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>launch</groupId>
-	<artifactId>cc</artifactId>
+	<artifactId>launch-cc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -30,7 +30,7 @@
 		<java.version>1.8</java.version>
 		<installer.dir>${project.basedir}/target/installer</installer.dir>
 		<swt.version>4.6</swt.version>
-		<mainClass>launcher.Launcher</mainClass>
+		<mainClass>launch.Launcher</mainClass>
 	</properties>
 	<dependencies>
 
