@@ -62,12 +62,13 @@ public class Launcher {
 	    }  
 	  
 	    public static void main(final String[] args) {	
-
+	    	System.setProperty("java.net.useSystemProxies", "true");
 	    	final SplashScreen screen = new SplashScreen(null);
 	        screen.setLocationRelativeTo(null);
 	        screen.setProgressMax(100);
 	        screen.setScreenVisible(true);
-	        screen.setProgress("Checking update...",0);
+	        screen.setProgress(Config.updateMessage,0);
+	        screen.setVisible(true);
 	        new Thread()
 	        {
 	        		private int percent;
@@ -117,7 +118,6 @@ public class Launcher {
 	 	    									}
 	 	    								});
 	 	                           JarTool.moveFile(tmpFile,new File(JarTool.getDownloadUpdateJarFileName(update.version)));
-	 	                          new File(JarTool.getDownloadUpdateJarFileName(update.url)).setLastModified(update.lastModifyTime);
 	 	                           Thread.sleep(1000);
 								} catch (InterruptedException e1) {
 									// TODO Auto-generated catch block

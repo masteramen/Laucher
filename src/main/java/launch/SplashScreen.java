@@ -74,15 +74,15 @@ private int positionY;
   // note - this class created with JBuilder
   void jbInit() throws Exception {
   	setUndecorated(true);
-  	
+  	setVisible(false);
     JPanel wrapPanel = new JPanel(new BorderLayout());
 
-  	setTitle("Loading");
-	title = new JLabel("Loading");
-	this.setSize(260, 60);
+  	setTitle(Config.appName);
+	title = new JLabel(Config.splashTitle);
+
 	close = new JLabel(" x");
 	
-	title.setPreferredSize(new Dimension(230, 26));
+	title.setPreferredSize(new Dimension(300, 26));
 	title.setVerticalTextPosition(JLabel.CENTER);
 	title.setHorizontalTextPosition(JLabel.CENTER);
 	title.setFont(new Font("宋体", Font.PLAIN, 12));
@@ -120,7 +120,8 @@ private int positionY;
     int srcHeight = image .getHeight();    // 源图高度
 
     imageIcon = new ImageIcon(image.getScaledInstance(300,300,Image.SCALE_DEFAULT));
-    
+    setIconImage(image.getScaledInstance(16,16,Image.SCALE_DEFAULT));
+
     JLayeredPane layeredPane_1 = new JLayeredPane();
     setContentPane(layeredPane_1);
     

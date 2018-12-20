@@ -24,7 +24,7 @@ public static Update checkUpdate2( ) throws IOException {
 
 
 	if(!JarTool.makeSureUpdateSuccess()){
-		JOptionPane.showMessageDialog(null, JarTool.getUpdateDir().getAbsolutePath()+"已经存在，并且不是目录,更新终止！", "错误提示",JOptionPane.ERROR_MESSAGE);  
+		JOptionPane.showMessageDialog(null, JarTool.getWorkDir().getAbsolutePath()+"已经存在，并且不是目录,更新终止！", "错误提示",JOptionPane.ERROR_MESSAGE);  
 		return null;
 	}
 	
@@ -119,7 +119,7 @@ public static Update checkUpdate( ) throws IOException {
 
 
 	if(!JarTool.makeSureUpdateSuccess()){
-		JOptionPane.showMessageDialog(null, JarTool.getUpdateDir().getAbsolutePath()+"已经存在，并且不是目录,更新终止！", "错误提示",JOptionPane.ERROR_MESSAGE);  
+		JOptionPane.showMessageDialog(null, JarTool.getWorkDir().getAbsolutePath()+"已经存在，并且不是目录,更新终止！", "错误提示",JOptionPane.ERROR_MESSAGE);  
 		return null;
 	}
 	
@@ -134,7 +134,7 @@ public static Update checkUpdate( ) throws IOException {
 	conn.addRequestProperty("Referer", "google.com");
 	conn.setInstanceFollowRedirects(false);
 	
-	System.setProperty("java.net.useSystemProxies", "true");
+
 	String response = readInputStreamToString(conn);
 	String[] vesionInfo = response.trim().split("\n+");
 	if (vesionInfo!=null && vesionInfo[0].trim().compareTo(JarTool.getCurrentVersionString())>0) {
@@ -144,6 +144,7 @@ public static Update checkUpdate( ) throws IOException {
 		
 		if(new File(JarTool.getDownloadUpdateJarFileName(vesionInfo[0])).exists()){
 			System.out.println("已经是最新的文件了");
+			return null;
 		}
 		HttpURLConnection conn2 = (HttpURLConnection) new URL(vesionInfo[1]).openConnection();
 		conn2.setReadTimeout(150000);

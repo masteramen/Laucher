@@ -23,7 +23,7 @@ public class JarTool {
     }  
     //获取jar目录  
     public static String getJarDir() {  
-    	return System.getProperty("user.home")+"/"+".launch";  
+    	return getWorkDir().getAbsolutePath()+File.separator+"jars";
     }  
     //获取jar包名  
     public static String getJarName() {  
@@ -64,7 +64,7 @@ public class JarTool {
     
 	public static File getLatestJarFile() {
 		// TODO Auto-generated method stub
-		File ssDir = new File(JarTool.getJarDir()+"/"+JarTool.getJarModuleName());
+		File ssDir = new File(JarTool.getJarDir());
 		if(ssDir.exists()&&ssDir.isDirectory())
 		{
 			File[] files = ssDir.listFiles();
@@ -83,16 +83,19 @@ public class JarTool {
 		}
 		return null;
 	}
-	public static File getUpdateDir()
+	public static File getWorkDir()
 	{
-		return  new File(JarTool.getJarDir()+"/"+Config.appName);
+		return  new File(System.getProperty("user.home")+File.separator+"."+getJarModuleName().replaceAll("[^a-zA-Z-]", "")); 
 
 	}
 	public static boolean makeSureUpdateSuccess() {
 		// TODO Auto-generated method stub
-		File updateDir = getUpdateDir();
+		File updateDir = getWorkDir();
 		if(updateDir.exists()&&!updateDir.isDirectory())return false;
-		else updateDir.mkdirs();
+		else {
+			updateDir.mkdirs();
+			new File(getJarDir()).mkdirs();
+		}
 		return true;
 	}
 	public static String getLatestJarVersion() {
@@ -108,11 +111,11 @@ public class JarTool {
 		return new SimpleDateFormat("YYYYMMDD").format(new Date(latestFile.lastModified()));
 	}
 	public static String getDownloadUpdateJarTmpFileName(String version) {
-		return getUpdateDir().getAbsolutePath()+"/"+version+".tmp";
+		return getWorkDir().getAbsolutePath()+"/"+version+".tmp";
 	}  
 	public static String getDownloadUpdateJarFileName(String versionId) {
 		// TODO Auto-generated method stub
-		return getUpdateDir().getAbsolutePath()+"/"+Config.appName+"-"+versionId+".jar";
+		return getJarDir()+File.separator+getJarModuleName()+"-"+versionId+".jar";
 	}
 	public static void moveFile(File afile, File bfile) throws IOException {
 		// TODO Auto-generated method stub
