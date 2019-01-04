@@ -157,6 +157,9 @@
 								<opts>
 									<opt>-Djava.endorsed.dirs=./endorsed</opt>
 									<opt>-Dfile.encoding=GB18030</opt>
+									<opt>-Dlaunch4j.exedir="%EXEDIR%"</opt>
+									<opt>-Dlaunch4j.exefile="%EXEFILE%"</opt>
+									<opt>-Denv.path="%Path%"</opt>
 								</opts>
 							</jre>
 

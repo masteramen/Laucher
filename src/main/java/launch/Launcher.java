@@ -63,6 +63,12 @@ public class Launcher {
 	  
 	    public static void main(final String[] args) {	
 	    	System.setProperty("java.net.useSystemProxies", "true");
+	    	System.out.println(System.getProperty("launch4j.exefile"));
+	    	System.out.println(System.getProperty("exedir.exefile"));
+	    	System.out.println(System.getProperty("env.path"));
+	    	
+	    	//String message = String.format("%s\n%s\n%s\n", System.getProperty("launch4j.exefile"),System.getProperty("exedir.exefile"),System.getProperty("env.path"));
+	    	//JOptionPane.showMessageDialog(null, message);
 	    	final SplashScreen screen = new SplashScreen(null);
 	        screen.setLocationRelativeTo(null);
 	        screen.setProgressMax(100);
