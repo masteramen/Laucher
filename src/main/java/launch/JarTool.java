@@ -108,14 +108,14 @@ public class JarTool {
 		// TODO Auto-generated method stub
 		File latestFile = getLatestJarFile();
 		if(latestFile==null)return "";
-		return new SimpleDateFormat("YYYYMMDD").format(new Date(latestFile.lastModified()));
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'").format(new Date(latestFile.lastModified()));
 	}
 	public static String getDownloadUpdateJarTmpFileName(String version) {
-		return getWorkDir().getAbsolutePath()+"/"+version+".tmp";
+		return getWorkDir().getAbsolutePath()+"/"+version.replaceAll("[^\\d-]", "")+".tmp";
 	}  
 	public static String getDownloadUpdateJarFileName(String versionId) {
 		// TODO Auto-generated method stub
-		return getJarDir()+File.separator+getJarModuleName()+"-"+versionId+".jar";
+		return getJarDir()+File.separator+getJarModuleName()+"-"+versionId.replaceAll("[^\\d-]", "")+".jar";
 	}
 	public static void moveFile(File afile, File bfile) throws IOException {
 		// TODO Auto-generated method stub
