@@ -69,7 +69,7 @@ public class Launcher {
 	    	
 	    	//String message = String.format("%s\n%s\n%s\n", System.getProperty("launch4j.exefile"),System.getProperty("exedir.exefile"),System.getProperty("env.path"));
 	    	//JOptionPane.showMessageDialog(null, message);
-	    	final SplashScreen screen = new SplashScreen(null);
+	    	final MySplashScreen screen = new MySplashScreen();
 	        screen.setLocationRelativeTo(null);
 	        screen.setProgressMax(100);
 	        screen.setScreenVisible(true);
@@ -82,7 +82,7 @@ public class Launcher {
 	    			@Override
 	    			public void run() {
 	    				try {
-	    					screen.close.addMouseListener(new MouseAdapter()  
+	    					screen.getClose().addMouseListener(new MouseAdapter()  
 	    					{  
 	    					    public void mouseClicked(MouseEvent e)  
 	    					    {  

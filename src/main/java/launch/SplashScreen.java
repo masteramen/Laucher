@@ -4,49 +4,26 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JWindow;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicProgressBarUI;
-class BarUI extends BasicProgressBarUI { 
 
-    private Rectangle r = new Rectangle(); 
-
-    @Override 
-    protected void paintIndeterminate(Graphics g, JComponent c) { 
-     Graphics2D G2D = (Graphics2D) g; 
-     G2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
-               RenderingHints.VALUE_ANTIALIAS_ON); 
-     r = getBox(r); 
-     g.setColor(c.getForeground()); 
-     g.fillRect(r.x,r.y,r.width,r.height); 
-    } 
-   } 
 
 
 public class SplashScreen extends JFrame {
