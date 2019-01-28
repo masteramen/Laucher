@@ -1,6 +1,7 @@
 package launch;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +16,10 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
+import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.jdt.internal.jarinjarloader.RsrcURLStreamHandlerFactory;
@@ -141,15 +145,16 @@ public class Launcher {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-	    				screen.dispose();
-	    				lauch(args);
+	    				
+	    				lauch(screen,args);
+	    				
 	    			}
 	    		
 	        }.start();
 		
 		}
 
-		private static void lauch(String[] args) {
+		private static void lauch(MySplashScreen screen, String[] args) {
 			File file = JarTool.getLatestJarFile();
 			if(file==null)
 			{
@@ -193,9 +198,28 @@ public class Launcher {
 					ClassLoader jceClassLoader = new URLClassLoader(rsrcUrls, null);
 					Thread.currentThread().setContextClassLoader(jceClassLoader);
 					Class c = Class.forName(mi.rsrcMainClass, true, jceClassLoader);
-
+					
 					Method main = c.getMethod(JIJConstants.MAIN_METHOD_NAME, new Class[]{args.getClass()}); 
-					main.invoke((Object)null, new Object[]{args});
+					//	public static void initSplashComponents(JDialog splashDialog,JProgressBar progressBar,JLabel titleLabel,JLabel closeLabel,String[] args){
+
+					Method initSplashComponents = c.getMethod(JIJConstants.INITSPLASHCOMPONENTS_METHOD_NAME, new Class[]{JDialog.class,JProgressBar.class,JLabel.class,JLabel.class,args.getClass()});
+					if(initSplashComponents!=null){
+						PropertyChangeListener targetObject = (PropertyChangeListener) initSplashComponents.invoke((Object)null, new Object[]{
+							screen,
+							screen.getProgressBar(),
+							screen.getTitleLabel(),
+							screen.getClose(),
+							args
+							});
+						screen.addPropertyChangeListener(targetObject);
+						
+						}
+					else{
+						main.invoke((Object)null, new Object[]{args});
+						screen.dispose();
+					}
+					
+					
 				}
 	        } catch (Exception e) {  
 	            e.printStackTrace();  
@@ -230,6 +254,7 @@ class JIJConstants {
 	static final String MAIN_CLASS_MANIFEST_NAME  = "Main-Class";  //$NON-NLS-1$
 	static final String DEFAULT_REDIRECTED_CLASSPATH         = "";  //$NON-NLS-1$
 	static final String MAIN_METHOD_NAME                     = "main";  //$NON-NLS-1$
+	static final String INITSPLASHCOMPONENTS_METHOD_NAME                     = "initSplashComponents";  //$NON-NLS-1$
 	static final String JAR_INTERNAL_URL_PROTOCOL_WITH_COLON = "jar:rsrc:";  //$NON-NLS-1$
 	static final String JAR_INTERNAL_SEPARATOR               = "!/";  //$NON-NLS-1$
 	static final String INTERNAL_URL_PROTOCOL_WITH_COLON     = "rsrc:";  //$NON-NLS-1$

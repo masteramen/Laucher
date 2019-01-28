@@ -8,6 +8,11 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -20,14 +25,16 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-public class MySplashScreen extends JDialog {
+public class MySplashScreen extends JDialog implements PropertyChangeListener  {
 
 	private final JPanel contentPanel = new JPanel();
 	private JProgressBar progressBar;
 	private int positionX;
 	private int positionY;
 	private JLabel close;
-
+	private JLabel titleLabel;
+	private PropertyChangeSupport support;
+	private Image cacheImage;
 	/**
 	 * Launch the application.
 	 */
@@ -41,6 +48,13 @@ public class MySplashScreen extends JDialog {
 		}
 	}
 
+	public void addPropertyChangeListener(PropertyChangeListener pcl) {
+		support.addPropertyChangeListener(pcl);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener pcl) {
+		support.removePropertyChangeListener(pcl);
+	}
 	/**
 	 * Create the dialog.
 	 */
@@ -50,28 +64,22 @@ public class MySplashScreen extends JDialog {
 		setUndecorated(true);
 		setBounds(100, 100, 450, 300);
 		setTitle(Config.appName);
-		
+		support = new PropertyChangeSupport(this);
 	    try {
-			   URL url = new URL(Config.loadingImageSrc);
-			    URLConnection connection = url.openConnection();
-			    connection.setDoOutput(true);
-			    BufferedImage image = ImageIO.read(connection.getInputStream());  
-			    int srcWidth = image .getWidth();      // 源图宽度
-			    int srcHeight = image .getHeight();    // 源图高度
-
-			    Image scaleImage = image.getScaledInstance(getWidth(),getHeight(),Image.SCALE_DEFAULT);
-				ImageIcon imageIcon = new ImageIcon(scaleImage);
-			    setIconImage(image.getScaledInstance(16,16,Image.SCALE_DEFAULT));
+			   
 		
 		JPanel bgPane = new JPanel() {
 	          @Override
 	            public void paintComponent(final Graphics g) {
+	        	  System.out.println("**paintComponent");
+	        	  Image scaleImage = getBackgroundImage();
 	                g.drawImage(scaleImage, 0, 0, null);
 	            }
 
 	            @Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(
+	                Image scaleImage = MySplashScreen.this.getBackgroundImage();
+					return new Dimension(
 	                		scaleImage.getWidth(this), scaleImage.getHeight(this));
 	            }
 
@@ -95,7 +103,7 @@ public class MySplashScreen extends JDialog {
 		contentPanel.add(topPanel, BorderLayout.NORTH);
 		topPanel.setLayout(new BorderLayout(0, 0));
 		
-		JLabel titleLabel = new JLabel(Config.splashTitle);
+		titleLabel = new JLabel(Config.splashTitle);
 		topPanel.add(titleLabel, BorderLayout.CENTER);
 		
 
@@ -126,11 +134,13 @@ public class MySplashScreen extends JDialog {
 		
 		progressBar = new JProgressBar();
 		progressBar.setBorderPainted(false);
+		//progressBar.setBackground(Color.BLUE);
 		contentPanel.add(progressBar, BorderLayout.SOUTH);
 		
 		close.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				dispose();
+				support.firePropertyChange("close", false, true);
 			}
 			public void mouseEntered(MouseEvent e) {
 				close.setForeground(Color.red);
@@ -142,6 +152,25 @@ public class MySplashScreen extends JDialog {
 			}
 		});
 
+	}
+
+	private Image getBackgroundImage()  {
+		if(cacheImage==null){
+			try {
+				URL url = new URL(Config.loadingImageSrc);
+			    URLConnection connection = url.openConnection();
+			    connection.setDoOutput(true);
+			    BufferedImage image = ImageIO.read(connection.getInputStream());  
+
+			    cacheImage = image.getScaledInstance(getWidth(),getHeight(),Image.SCALE_DEFAULT);
+
+			} catch (Exception e) {
+
+			}
+		}
+
+		return cacheImage;
+		
 	}
 	
 
@@ -186,4 +215,32 @@ public class MySplashScreen extends JDialog {
 	public JLabel getClose() {
 		return close;
 	}
+	public JProgressBar getProgressBar() {
+		return progressBar;
+	}
+	public JLabel getTitleLabel() {
+		return titleLabel;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if(evt.getPropertyName().equals("backgroundImage")){
+			try {
+				if(evt.getNewValue()!=null && evt.getNewValue() instanceof URL){
+					URL url = (URL) evt.getNewValue();
+				    URLConnection connection = url.openConnection();
+				    connection.setDoOutput(true);
+				    BufferedImage image = ImageIO.read(connection.getInputStream());  
+
+				    cacheImage = image.getScaledInstance(getWidth(),getHeight(),Image.SCALE_DEFAULT);
+				    getContentPane().repaint();
+				    
+				}
+
+			} catch (Exception e) {
+
+			}
+		}
+	}
+	
 }
